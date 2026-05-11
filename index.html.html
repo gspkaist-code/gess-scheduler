@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GI × Team Meeting Scheduler — GESS 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:       #3D7A7A;
+    --teal-dark:  #2A6060;
+    --teal-mid:   #5B9EA0;
+    --teal-light: #C8D8C8;
+    --teal-pale:  #EBF4EE;
+    --teal-faint: #F5FAF7;
+    --text:       #1A2E2E;
+    --muted:      #6B8A8A;
+    --faint:      #A0BCBC;
+    --border:     #D0E4E4;
+    --white:      #FFFFFF;
+    --green-bg:   #C8D8C8;
+    --green-txt:  #2A6060;
+    --radius:     10px;
+    --radius-sm:  6px;
+    --shadow:     0 2px 12px rgba(61,122,122,.10);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--teal-faint); color: var(--text); min-height: 100vh; }
+
+  .topbar { background: var(--teal); padding: 0 2rem; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-logo { font-size: 15px; font-weight: 600; color: #fff; letter-spacing: .02em; }
+  .topbar-logo span { opacity: .5; font-weight: 300; margin: 0 6px; }
+  .topbar-badge { background: rgba(255,255,255,.15); color: #fff; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+  .topbar-loc { font-size: 12px; color: rgba(255,255,255,.7); font-family: 'DM Mono', monospace; }
+
+  .main { max-width: 1020px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  .day-tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; background: var(--white); border-radius: var(--radius); padding: 4px; border: 1px solid var(--border); box-shadow: var(--shadow); width: fit-content; }
+  .day-tab { padding: 7px 20px; border-radius: 7px; border: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; transition: all .15s; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+  .day-tab:hover { background: var(--teal-pale); color: var(--teal-dark); }
+  .day-tab.active { background: var(--teal); color: #fff; box-shadow: 0 2px 8px rgba(61,122,122,.3); }
+  .am-only-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #FFE0B2; color: #E65100; font-weight: 600; }
+  .day-tab.active .am-only-tag { background: rgba(255,255,255,.25); color: #fff; }
+
+  .card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 1.5rem; }
+  .card-head { padding: 13px 20px; background: var(--teal-pale); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .card-head-title { font-size: 12px; font-weight: 600; color: var(--teal-dark); letter-spacing: .05em; text-transform: uppercase; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; }
+  .leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+  .leg-dot { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--border); }
+
+  .grid-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 480px; }
+  th { font-size: 11px; font-weight: 500; color: var(--muted); padding: 7px 5px; text-align: center; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th.team-th { text-align: left; padding-left: 20px; min-width: 100px; }
+  .day-th { background: var(--teal) !important; color: #fff !important; font-weight: 600 !important; font-size: 12px !important; }
+  .day-th-na { background: #8aabab !important; color: #fff !important; font-weight: 600 !important; font-size: 12px !important; }
+  .sub-am { background: var(--teal-pale); color: var(--teal-dark) !important; font-weight: 600 !important; font-size: 11px !important; }
+  .sub-pm { background: #EEF5F0; color: var(--teal-dark) !important; font-weight: 600 !important; font-size: 11px !important; }
+  .sub-na { background: #F5F5F5; color: #bbb !important; font-style: italic; }
+  .time-th { font-family: 'DM Mono', monospace; font-size: 10px !important; }
+  td { border-bottom: 1px solid #F0F5F0; padding: 4px 4px; text-align: center; }
+  td.team-td { text-align: left; padding-left: 20px; font-size: 13px; font-weight: 600; color: var(--teal-dark); white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--teal-faint); }
+  .sep-th, .sep-td { width: 6px !important; padding: 0 !important; background: #e4e4e4 !important; }
+  .na-cell { background: #FAFAFA !important; color: #ccc; font-size: 12px; }
+
+  .sb { width: 38px; height: 30px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: var(--white); cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; transition: all .12s; color: var(--faint); }
+  .sb:hover { border-color: var(--teal-mid); background: var(--teal-pale); color: var(--teal); }
+  .sb.avail { background: var(--green-bg); border-color: var(--teal-mid); color: var(--green-txt); font-weight: 700; }
+  .sb.assigned { background: var(--teal); border-color: var(--teal-dark); color: #fff; box-shadow: 0 2px 6px rgba(61,122,122,.3); }
+
+  .actions { display: flex; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border); flex-wrap: wrap; align-items: center; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; border: 1.5px solid transparent; }
+  .btn-p { background: var(--teal); color: #fff; border-color: var(--teal-dark); }
+  .btn-p:hover { background: var(--teal-dark); }
+  .btn-s { background: var(--white); color: var(--muted); border-color: var(--border); }
+  .btn-s:hover { background: var(--teal-pale); color: var(--teal-dark); }
+  .notice { font-size: 12px; color: var(--muted); margin-left: auto; padding: 6px 14px; background: var(--teal-pale); border-radius: var(--radius-sm); border: 1px solid var(--border); display: none; }
+
+  .sched-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; padding: 16px 20px; }
+  .tcard { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; transition: all .15s; background: var(--white); }
+  .tcard:hover { box-shadow: var(--shadow); }
+  .tcard.ok { border-color: var(--teal-mid); background: var(--teal-pale); }
+  .tcard .tn { font-size: 13px; font-weight: 600; color: var(--teal-dark); margin-bottom: 6px; }
+  .tcard .ts { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); line-height: 1.8; }
+  .tcard.ok .ts { color: var(--teal-dark); font-weight: 500; }
+  .tc-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
+  .b-ok { background: var(--green-bg); color: var(--green-txt); }
+  .b-no { background: #F0F0F0; color: #999; }
+
+  .export-panel { background: var(--teal-faint); border: 1px dashed var(--teal-light); border-radius: var(--radius); padding: 16px 20px; margin: 0 20px 20px; display: none; }
+  .export-panel.on { display: block; }
+  .export-title { font-size: 12px; font-weight: 600; color: var(--teal-dark); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+  .etable { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .etable th { font-size: 11px; text-align: left; padding: 5px 10px; background: var(--teal-light); color: var(--teal-dark); border: none; }
+  .etable td { padding: 6px 10px; border-bottom: 1px solid var(--border); font-family: 'DM Mono', monospace; color: var(--text); text-align: left; }
+  .copy-btn { margin-top: 10px; padding: 7px 16px; border-radius: var(--radius-sm); border: 1.5px solid var(--teal-light); background: var(--white); color: var(--teal-dark); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; }
+  .copy-btn:hover { background: var(--teal-pale); }
+
+  @media (max-width: 600px) {
+    .topbar-loc { display: none; }
+    .main { padding: 1rem 1rem 3rem; }
+    .day-tabs { width: 100%; }
+    .day-tab { flex: 1; justify-content: center; font-size: 11px; padding: 7px 6px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">GI <span>×</span> Team Meetings</div>
+    <div class="topbar-badge">GESS 2026</div>
+  </div>
+  <div class="topbar-loc">📍 W2-1 Rm. 200 or Zoom &nbsp;·&nbsp; by May 22 (Fri)</div>
+</div>
+
+<div class="main">
+  <div class="day-tabs" id="dayTabs"></div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-title">Step 1 — Mark availability</div>
+      <div class="legend">
+        <div class="leg"><div class="leg-dot" style="background:var(--green-bg);border-color:var(--teal-mid)"></div>Available</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--teal);border-color:var(--teal-dark)"></div>Assigned</div>
+        <div class="leg"><div class="leg-dot"></div>Unavailable</div>
+      </div>
+    </div>
+    <div class="grid-scroll"><table id="availTable"></table></div>
+    <div class="actions">
+      <button class="btn btn-p" onclick="autoAssign()">✦ Auto-assign</button>
+      <button class="btn btn-s" onclick="resetAll()">↺ Reset all</button>
+      <button class="btn btn-p" onclick="toggleExport()">↗ Export schedule</button>
+      <div class="notice" id="notice"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-head-title">Step 2 — Confirmed schedule</div></div>
+    <div class="sched-grid" id="schedGrid"></div>
+  </div>
+
+  <div class="card">
+    <div class="export-panel" id="exportPanel">
+      <div class="export-title">📋 Ready to copy into slides</div>
+      <table class="etable">
+        <thead><tr><th>Team</th><th>Date</th><th>Time</th><th>Location</th></tr></thead>
+        <tbody id="exportBody"></tbody>
+      </table>
+      <button class="copy-btn" onclick="copyExport()">Copy as text</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TEAMS = ['Team 1','Team 2','Team 3','Team 4','Team 5'];
+const DAYS = [
+  { label:'May 18 (Mon)', key:'0518', am:['08:00','09:00','10:00','11:00'], pm:[] },
+  { label:'May 19 (Tue)', key:'0519', am:['08:00','09:00','10:00','11:00'], pm:['14:00','15:00','16:00'] },
+  { label:'May 20 (Wed)', key:'0520', am:['08:00','09:00','10:00','11:00'], pm:['14:00','15:00','16:00'] },
+];
+
+let currentDay = '0518';
+let availability = {};
+let assigned = {};
+
+function initState() {
+  TEAMS.forEach(t => {
+    assigned[t] = null;
+    DAYS.forEach(d => [...d.am, ...d.pm].forEach(s => {
+      availability[`${t}_${d.key}_${s}`] = false;
+    }));
+  });
+}
+initState();
+
+function renderTabs() {
+  document.getElementById('dayTabs').innerHTML = DAYS.map(d => {
+    const tag = d.pm.length === 0 ? '<span class="am-only-tag">AM only</span>' : '';
+    return `<button class="day-tab${d.key===currentDay?' active':''}" onclick="switchDay('${d.key}')">${d.label}${tag}</button>`;
+  }).join('');
+}
+function switchDay(k) { currentDay=k; renderTabs(); renderTable(); }
+
+function renderTable() {
+  const day = DAYS.find(d => d.key===currentDay);
+  const { am, pm } = day;
+  const hasPm = pm.length > 0;
+
+  // Row 1: day label spanning AM; "Not available" spanning PM area
+  // Row 2: Morning / Afternoon sub-labels
+  // Row 3: individual time slots
+  const amSpan = am.length;
+  const pmSpan = pm.length || 3;
+
+  let r1 = `<th class="team-th" rowspan="3">Team</th>`;
+  r1 += `<th colspan="${amSpan}" class="day-th">${day.label}</th>`;
+  r1 += `<th class="sep-th" rowspan="3"></th>`;
+  r1 += hasPm
+    ? `<th colspan="${pm.length}" class="day-th">Afternoon</th>`
+    : `<th colspan="3" class="day-th-na">Not available (Mon PM)</th>`;
+
+  let r2 = `<th colspan="${amSpan}" class="sub-am">Morning</th>`;
+  r2 += hasPm ? `<th colspan="${pm.length}" class="sub-pm">Afternoon</th>` : `<th colspan="3" class="sub-na">–</th>`;
+
+  let r3 = am.map(s => `<th class="time-th am-th" style="background:var(--teal-pale)">${s}</th>`).join('');
+  r3 += hasPm
+    ? pm.map(s => `<th class="time-th pm-th" style="background:#EEF5F0">${s}</th>`).join('')
+    : `<th colspan="3" class="sub-na"></th>`;
+
+  let html = `<thead><tr>${r1}</tr><tr>${r2}</tr><tr>${r3}</tr></thead><tbody>`;
+
+  TEAMS.forEach(team => {
+    html += `<tr><td class="team-td">${team}</td>`;
+    am.forEach(s => { html += slotCell(team, currentDay, s); });
+    html += `<td class="sep-td"></td>`;
+    if (hasPm) {
+      pm.forEach(s => { html += slotCell(team, currentDay, s); });
+    } else {
+      html += `<td class="na-cell" colspan="3">—</td>`;
+    }
+    html += `</tr>`;
+  });
+
+  html += '</tbody>';
+  document.getElementById('availTable').innerHTML = html;
+}
+
+function slotCell(team, day, slot) {
+  const isAssigned = assigned[team]?.day===day && assigned[team]?.slot===slot;
+  const isAvail    = availability[`${team}_${day}_${slot}`];
+  const cls  = isAssigned ? 'assigned' : isAvail ? 'avail' : '';
+  const icon = (isAssigned||isAvail) ? '✓' : '–';
+  return `<td><button class="sb ${cls}" onclick="toggleSlot('${team}','${day}','${slot}')">${icon}</button></td>`;
+}
+
+function toggleSlot(team, day, slot) {
+  if (assigned[team]?.day===day && assigned[team]?.slot===slot) assigned[team]=null;
+  availability[`${team}_${day}_${slot}`] = !availability[`${team}_${day}_${slot}`];
+  renderTable(); renderSchedule(); renderExport();
+}
+
+function autoAssign() {
+  assigned = {}; TEAMS.forEach(t => assigned[t]=null);
+  const used = {};
+  TEAMS.forEach(team => {
+    outer: for (const d of DAYS)
+      for (const s of [...d.am, ...d.pm]) {
+        const k=`${team}_${d.key}_${s}`, sk=`${d.key}_${s}`;
+        if (availability[k] && !used[sk]) {
+          assigned[team]={day:d.key,slot:s,dayLabel:d.label};
+          used[sk]=team; break outer;
+        }
+      }
+  });
+  const miss = TEAMS.filter(t=>!assigned[t]);
+  showNotice(miss.length===0?'✓ All 5 teams assigned!':'⚠ Could not assign: '+miss.join(', '));
+  renderTable(); renderSchedule(); renderExport();
+}
+
+function renderSchedule() {
+  document.getElementById('schedGrid').innerHTML = TEAMS.map(t => {
+    if (assigned[t]) {
+      const d = DAYS.find(x=>x.key===assigned[t].day);
+      return `<div class="tcard ok"><div class="tc-badge b-ok">Confirmed</div><div class="tn">${t}</div><div class="ts">📅 ${d.label}<br>🕐 ${assigned[t].slot}<br>📍 W2-1 Rm.200 / Zoom</div></div>`;
+    }
+    return `<div class="tcard no"><div class="tc-badge b-no">Pending</div><div class="tn">${t}</div><div class="ts" style="color:var(--faint);font-style:italic">Not assigned yet</div></div>`;
+  }).join('');
+}
+
+function renderExport() {
+  document.getElementById('exportBody').innerHTML = TEAMS.map(t => {
+    if (assigned[t]) {
+      const d=DAYS.find(x=>x.key===assigned[t].day);
+      return `<tr><td>${t}</td><td>${d.label}</td><td>${assigned[t].slot}</td><td>W2-1 Rm. 200 or Zoom</td></tr>`;
+    }
+    return `<tr><td>${t}</td><td colspan="3" style="color:var(--faint);font-style:italic">Not assigned</td></tr>`;
+  }).join('');
+}
+function toggleExport() { document.getElementById('exportPanel').classList.toggle('on'); renderExport(); }
+function copyExport() {
+  const lines = TEAMS.map(t => {
+    if (assigned[t]) { const d=DAYS.find(x=>x.key===assigned[t].day); return `${t}\t${d.label}\t${assigned[t].slot}\tW2-1 Rm. 200 or Zoom`; }
+    return `${t}\tNot assigned\t\t`;
+  });
+  navigator.clipboard.writeText(lines.join('\n'))
+    .then(()=>showNotice('Copied to clipboard!'))
+    .catch(()=>showNotice('Select the table and copy manually.'));
+}
+function resetAll() { initState(); renderTable(); renderSchedule(); renderExport(); showNotice('Reset complete.'); }
+function showNotice(msg) {
+  const el=document.getElementById('notice');
+  el.textContent=msg; el.style.display='block';
+  clearTimeout(el._t); el._t=setTimeout(()=>el.style.display='none',3500);
+}
+
+renderTabs(); renderTable(); renderSchedule();
+</script>
+</body>
+</html>
