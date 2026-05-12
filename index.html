@@ -20,6 +20,8 @@
     --white:      #FFFFFF;
     --green-bg:   #C8D8C8;
     --green-txt:  #2A6060;
+    --eve-bg:     #EEF0FA;
+    --eve-txt:    #3D4A7A;
     --radius:     10px;
     --radius-sm:  6px;
     --shadow:     0 2px 12px rgba(61,122,122,.10);
@@ -27,19 +29,12 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'DM Sans', sans-serif; background: var(--teal-faint); color: var(--text); min-height: 100vh; }
 
-  .topbar { background: var(--teal); padding: 0 2rem; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
-  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar { background: var(--teal); padding: 0 2rem; height: 56px; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
   .topbar-logo { font-size: 15px; font-weight: 600; color: #fff; letter-spacing: .02em; }
   .topbar-logo span { opacity: .5; font-weight: 300; margin: 0 6px; }
-  .topbar-badge { background: rgba(255,255,255,.15); color: #fff; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
-  .topbar-loc { font-size: 12px; color: rgba(255,255,255,.7); font-family: 'DM Mono', monospace; }
+  .topbar-badge { background: rgba(255,255,255,.15); color: #fff; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; margin-left: 12px; }
 
-  .main { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-
-  .day-tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; background: var(--white); border-radius: var(--radius); padding: 4px; border: 1px solid var(--border); box-shadow: var(--shadow); width: fit-content; }
-  .day-tab { padding: 7px 28px; border-radius: 7px; border: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; transition: all .15s; white-space: nowrap; }
-  .day-tab:hover { background: var(--teal-pale); color: var(--teal-dark); }
-  .day-tab.active { background: var(--teal); color: #fff; box-shadow: 0 2px 8px rgba(61,122,122,.3); }
+  .main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
 
   .card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 1.5rem; }
   .card-head { padding: 13px 20px; background: var(--teal-pale); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
@@ -49,18 +44,28 @@
   .leg-dot { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--border); }
 
   .grid-scroll { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; min-width: 400px; }
-  th { font-size: 11px; font-weight: 500; color: var(--muted); padding: 8px 6px; text-align: center; border-bottom: 1px solid var(--border); white-space: nowrap; }
-  th.team-th { text-align: left; padding-left: 20px; min-width: 130px; }
-  .day-th { background: var(--teal) !important; color: #fff !important; font-weight: 600 !important; font-size: 12px !important; }
-  .sub-eve { background: #EEF0FA; color: #3D4A7A !important; font-weight: 600 !important; font-size: 11px !important; }
-  .time-th { font-family: 'DM Mono', monospace; font-size: 10px !important; background: #EEF0FA; color: #3D4A7A !important; }
-  td { border-bottom: 1px solid #F0F5F0; padding: 5px 5px; text-align: center; }
+  table { width: 100%; border-collapse: collapse; min-width: 560px; }
+
+  /* row 1: day headers */
+  th.team-th { text-align: left; padding-left: 20px; min-width: 130px; font-size: 12px; font-weight: 600; color: var(--muted); padding-top: 10px; padding-bottom: 10px; }
+  th.day-th { color: #fff !important; font-weight: 700 !important; font-size: 12px !important; padding: 9px 6px; }
+  th.day-wed { background: var(--teal) !important; }
+  th.day-thu { background: #4A7A6A !important; }
+  th.sep-th { width: 10px; background: #e8e8e8 !important; padding: 0 !important; }
+
+  /* row 2: time slots */
+  th.time-th { font-family: 'DM Mono', monospace; font-size: 10px !important; padding: 6px 4px; }
+  th.time-wed { background: var(--eve-bg); color: var(--eve-txt) !important; }
+  th.time-thu { background: #EAF0EC; color: #2A4A3A !important; }
+
+  td { border-bottom: 1px solid #F0F5F0; padding: 5px 4px; text-align: center; }
   td.team-td { text-align: left; padding-left: 20px; font-size: 13px; font-weight: 600; color: var(--teal-dark); white-space: nowrap; }
+  td.sep-td { background: #f0f0f0 !important; padding: 0 !important; }
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: var(--teal-faint); }
+  tr:hover td.sep-td { background: #e8e8e8 !important; }
 
-  .sb { width: 44px; height: 32px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: var(--white); cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; transition: all .12s; color: var(--faint); }
+  .sb { width: 40px; height: 30px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: var(--white); cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; transition: all .12s; color: var(--faint); }
   .sb:hover { border-color: var(--teal-mid); background: var(--teal-pale); color: var(--teal); }
   .sb.avail { background: var(--green-bg); border-color: var(--teal-mid); color: var(--green-txt); font-weight: 700; }
   .sb.assigned { background: var(--teal); border-color: var(--teal-dark); color: #fff; box-shadow: 0 2px 6px rgba(61,122,122,.3); }
@@ -94,26 +99,20 @@
   .copy-btn:hover { background: var(--teal-pale); }
 
   @media (max-width: 600px) {
-    .topbar-loc { display: none; }
     .main { padding: 1rem 1rem 3rem; }
-    .day-tabs { width: 100%; }
-    .day-tab { flex: 1; text-align: center; font-size: 12px; padding: 7px 8px; }
   }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="topbar-left">
+  <div style="display:flex;align-items:center">
     <div class="topbar-logo">GI <span>×</span> Team Meetings</div>
     <div class="topbar-badge">GESS 2026</div>
   </div>
-  
 </div>
 
 <div class="main">
-  <div class="day-tabs" id="dayTabs"></div>
-
   <div class="card">
     <div class="card-head">
       <div class="card-head-title">Step 1 — Mark availability</div>
@@ -152,11 +151,10 @@
 <script>
 const TEAMS = ['Gleamo','MARKS','Be More','Habitus','conVRsation','CUPID','Gollem','Nexus'];
 const DAYS = [
-  { label:'May 20 (Wed)', key:'0520', slots:['18:00','19:00','20:00','21:00'] },
-  { label:'May 21 (Thu)', key:'0521', slots:['18:00','19:00','20:00','21:00'] },
+  { label:'May 20 (Wed)', key:'0520', slots:['18:00','19:00','20:00','21:00'], cls:'wed' },
+  { label:'May 21 (Thu)', key:'0521', slots:['18:00','19:00','20:00','21:00'], cls:'thu' },
 ];
 
-let currentDay = '0520';
 let availability = {};
 let assigned = {};
 
@@ -170,31 +168,29 @@ function initState() {
 }
 initState();
 
-function renderTabs() {
-  document.getElementById('dayTabs').innerHTML = DAYS.map(d =>
-    `<button class="day-tab${d.key===currentDay?' active':''}" onclick="switchDay('${d.key}')">${d.label}</button>`
-  ).join('');
-}
-function switchDay(k) { currentDay=k; renderTabs(); renderTable(); }
-
 function renderTable() {
-  const day = DAYS.find(d => d.key===currentDay);
-  const { slots } = day;
+  // Row 1: Team | May 20 (4 cols) | sep | May 21 (4 cols)
+  let row1 = `<th class="team-th" rowspan="2">Team</th>`;
+  DAYS.forEach((d, i) => {
+    row1 += `<th colspan="${d.slots.length}" class="day-th day-${d.cls}">${d.label} · Evening</th>`;
+    if (i < DAYS.length - 1) row1 += `<th class="sep-th" rowspan="2"></th>`;
+  });
 
-  let html = `<thead>
-    <tr>
-      <th class="team-th">Team</th>
-      <th colspan="${slots.length}" class="day-th">${day.label} &nbsp;·&nbsp; Evening</th>
-    </tr>
-    <tr>
-      <th class="team-th"></th>
-      ${slots.map(s=>`<th class="time-th">${s}</th>`).join('')}
-    </tr>
-  </thead><tbody>`;
+  // Row 2: time slots
+  let row2 = '';
+  DAYS.forEach((d, i) => {
+    row2 += d.slots.map(s => `<th class="time-th time-${d.cls}">${s}</th>`).join('');
+    if (i < DAYS.length - 1) row2 += '';
+  });
+
+  let html = `<thead><tr>${row1}</tr><tr>${row2}</tr></thead><tbody>`;
 
   TEAMS.forEach(team => {
     html += `<tr><td class="team-td">${team}</td>`;
-    slots.forEach(s => { html += slotCell(team, currentDay, s); });
+    DAYS.forEach((d, i) => {
+      d.slots.forEach(s => { html += slotCell(team, d.key, s); });
+      if (i < DAYS.length - 1) html += `<td class="sep-td"></td>`;
+    });
     html += `</tr>`;
   });
   html += '</tbody>';
@@ -269,7 +265,7 @@ function showNotice(msg) {
   clearTimeout(el._t); el._t=setTimeout(()=>el.style.display='none',3500);
 }
 
-renderTabs(); renderTable(); renderSchedule();
+renderTable(); renderSchedule();
 </script>
 </body>
 </html>
